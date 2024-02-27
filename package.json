@@ -1,0 +1,35 @@
+{
+  "name": "modulo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend": "parcel --target frontend",
+    "backend": "parcel build --target backend && node dist/backend/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/transformer-pug": "^2.11.0",
+    "@types/node": "^20.11.20",
+    "parcel": "^2.11.0"
+  },
+  "dependencies": {
+    "reveal.js": "^5.0.5"
+  },
+  "targets": {
+    "frontend": {
+      "source": "src/index.pug",
+      "engines": {
+        "browsers": "Chrome 121"
+      }
+    },
+    "backend": {
+      "source": "src/server.ts",
+      "engines": {
+        "node": ">= 18"
+      }
+    }
+  }
+}
