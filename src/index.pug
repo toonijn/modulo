@@ -2,12 +2,68 @@ doctype html
 html 
   head 
     link(rel="stylesheet" href="/node_modules/reveal.js/dist/reveal.css")
-    link(rel="stylesheet" href="/node_modules/reveal.js/dist/theme/black.css")
+    link(rel="stylesheet" href="/node_modules/highlight.js/styles/vs.css")
+    link(rel="stylesheet" href="theme.scss")
   body
     .reveal
       .slides
         section
-          h2 First slide
+          h1 Table Of Content
+          ul
+            li background
+              li about me
+              li about Think-Cell
+              li why I care about modulo
+              li design goals (correctness, performance, easy to use), non-goals (easy to understand, small moduli, primes, perfect)
+            li Modulo known at compile time
+              ul
+                li member type
+                li operator+,-* with adl
+                li something about operator/?
+                li constructor 
+            li Unknown modulus
+              ul
+                li class design (member type, where to store modulus)
+                li dependent types
+                li detour about assume
+                li __int128, umul128
+
         section
-          h2 Second slide
+          h1 Design goals
+          .row
+            .col
+              h2 Goals
+              ul
+                li Correctness
+                li Easy to use
+                li Performance
+            .col
+              h2 Non-goals
+              ul
+                li Easy to understand
+                li Mathematical optimizations
+                li Perfection
+        
+        section
+          h1 Design goals
+          h2 Easy to use
+          .row 
+            .col
+              h3 constexpr modulus
+              pre
+                code.language-cpp
+                  | using Mod = Modulo<17>;
+            .col
+              h3 run-time modulus
+              pre
+                code.language-cpp
+                  | // Something magical to get a Mod type
+          h3 Usage
+          pre
+            code.language-cpp
+              | auto a = Mod(3);
+              | a -= 2;
+              | auto b = 3 + a * 7
+              | a += a * b;
+
     script(src="index.js" type="module")

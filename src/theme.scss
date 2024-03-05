@@ -1,0 +1,88 @@
+// Default mixins and settings -----------------
+@import "/node_modules/reveal.js/css/theme/template/mixins";
+@import "/node_modules/reveal.js/css/theme/template/settings";
+// ---------------------------------------------
+
+
+// Override theme settings (see ../template/settings.scss)
+$backgroundColor: #fff;
+
+$mainColor: #3C3C3C;
+$headingColor: $mainColor;
+$accentColor: #6EA600;
+
+$mainFontSize: 47px;
+$mainFont: 'Source Sans Pro', Helvetica, sans-serif;
+$headingFont: 'Source Sans Pro', Helvetica, sans-serif;
+$headingTextShadow: none;
+$headingLetterSpacing: normal;
+$headingTextTransform: normal;
+$headingFontWeight: 600;
+$linkColor: #2a76dd;
+$linkColorHover: lighten($linkColor, 15%);
+$selectionBackgroundColor: lighten($linkColor, 25%);
+
+$heading1Size: 2em;
+$heading2Size: 1.3em;
+$heading3Size: 1.1em;
+$heading4Size: 1.0em;
+
+$overlayElementBgColor: 0, 0, 0;
+$overlayElementFgColor: 240, 240, 240;
+
+// Change text colors against dark slide backgrounds
+@include dark-bg-text-color(#fff);
+
+
+// Theme template ------------------------------
+@import "/node_modules/reveal.js/css/theme/template/theme";
+// ---------------------------------------------
+
+.reveal {
+    $padding-h: 80px;
+
+
+    .slides section {
+        padding: 0 $padding-h;
+        box-sizing: border-box;
+
+        &:before {
+            content: " ";
+            position: absolute;
+            top: 30px;
+            right: calc(30px - $padding-h);
+            height: 80px;
+            width: calc(100px*184/44);
+            background: url(logo.svg) no-repeat;
+        }
+    }
+
+    .slide-number {
+        background: #3C3C3C;
+    }
+
+    h1 {
+        text-align: left;
+        width: 1300px;
+        background: $accentColor;
+        color: #ffffff;
+        font-size: 80px;
+        line-height: 80px;
+        padding: 30px $padding-h;
+        margin-left: -$padding-h;
+    }
+
+    pre {
+        width: calc(100% - 80px);
+        margin: 20px 40px;
+        padding: 20px;
+    }
+}
+
+.row {
+    display: flex;
+
+    .col {
+        flex-grow: 1;
+    }
+}
