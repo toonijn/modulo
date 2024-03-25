@@ -43,27 +43,29 @@ html
                 li Easy to understand
                 li Mathematical optimizations
                 li Perfection
-        
+
         section
           h1 Design goals
           h2 Easy to use
           .row 
             .col
               h3 constexpr modulus
-              pre
-                code.language-cpp
-                  | using Mod = Modulo<17>;
+              :code
+                using Mod = Modulo<17>;
             .col
               h3 run-time modulus
-              pre
-                code.language-cpp
-                  | // Something magical to get a Mod type
+              :code
+                // Something magical to get a Mod type
           h3 Usage
-          pre
-            code.language-cpp
-              | auto a = Mod(3);
-              | a -= 2;
-              | auto b = 3 + a * 7
-              | a += a * b;
-
+          :code
+            auto a = Mod(3);
+            a -= 2;
+            auto b = 3 + a * 7
+            a += a * b;
+        section
+          h1 First design
+          include:code code/naive1.cpp
+          .img.fragment(style="background: white; padding: 10px;")
+            include code/precedence.pug
+          
     script(src="index.js" type="module")

@@ -40,20 +40,26 @@ $overlayElementFgColor: 240, 240, 240;
 
 .reveal {
     $padding-h: 80px;
+    background: #aaa;
 
 
-    .slides section {
-        padding: 0 $padding-h;
-        box-sizing: border-box;
+    .slides {
+        background: #fff;
 
-        &:before {
-            content: " ";
-            position: absolute;
-            top: 30px;
-            right: calc(30px - $padding-h);
-            height: 80px;
-            width: calc(100px*184/44);
-            background: url(logo.svg) no-repeat;
+        section {
+            height: 100%;
+            padding: 0 $padding-h;
+            box-sizing: border-box;
+
+            &:before {
+                content: " ";
+                position: absolute;
+                top: 30px;
+                right: calc(30px - $padding-h);
+                height: 80px;
+                width: calc(100px*184/44);
+                background: url(logo.svg) no-repeat;
+            }
         }
     }
 
@@ -76,6 +82,23 @@ $overlayElementFgColor: 240, 240, 240;
         width: calc(100% - 80px);
         margin: 20px 40px;
         padding: 20px;
+
+        &.subtle {
+            width: 100%;
+            margin: 0;
+            padding: 5px;
+        }
+    }
+
+    .img {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        box-shadow: 0 5px 15px #00000026;
+    }
+
+    .fragment:not(.custom) {
+        will-change: auto;
     }
 }
 
