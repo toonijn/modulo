@@ -63,9 +63,30 @@ html
             auto b = 3 + a * 7
             a += a * b;
         section
-          h1 First design
-          include:code code/naive1.cpp
+          h1 First compile-time design
+          include:code code/ct_naive.cpp
           .img.fragment(style="background: white; padding: 10px;")
             include code/precedence.pug
+        section
+          h1 Compile-time datatype
+          :code
+            template<[...] modulus>
+            struct Modulo {
+                using ValueType = [...];
+                ValueType value;
+            }
+          ul
+            li What should #[:code(inline subtle) ValueType] be?
+              ul
+                li Signedness?
+                li #[:code(inline subtle) value] needs to fit.
+                  ul
+                    li Does #[:code(inline subtle) modulus] need to fit?
+                    li Does #[:code(inline subtle) value + value] need to fit?
+                    li Does #[:code(inline subtle) value * value] need to fit?
+                li Do we care for #[:code(inline subtle) __uint128]?
+        section
+          h1 Compile-time datatype
+          include:code code/ct_datatype.cpp
           
     script(src="index.js" type="module")

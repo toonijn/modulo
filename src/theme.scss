@@ -84,9 +84,16 @@ $overlayElementFgColor: 240, 240, 240;
         padding: 20px;
 
         &.subtle {
-            width: 100%;
-            margin: 0;
-            padding: 5px;
+            width: auto;
+            margin: 3px 0;
+            padding: 3px 6px;
+            display: inline-block;
+            font-size: .7em;
+            vertical-align: middle;
+        }
+
+        code {
+            max-height: none;
         }
     }
 
