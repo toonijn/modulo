@@ -3,17 +3,16 @@
 @import "/node_modules/reveal.js/css/theme/template/settings";
 // ---------------------------------------------
 
-
 // Override theme settings (see ../template/settings.scss)
 $backgroundColor: #fff;
 
-$mainColor: #3C3C3C;
+$mainColor: #3c3c3c;
 $headingColor: $mainColor;
-$accentColor: #6EA600;
+$accentColor: #9db1cc;
 
 $mainFontSize: 47px;
-$mainFont: 'Source Sans Pro', Helvetica, sans-serif;
-$headingFont: 'Source Sans Pro', Helvetica, sans-serif;
+$mainFont: "Source Sans Pro", Helvetica, sans-serif;
+$headingFont: "Courier New", Courier, monospace;
 $headingTextShadow: none;
 $headingLetterSpacing: normal;
 $headingTextTransform: normal;
@@ -25,7 +24,7 @@ $selectionBackgroundColor: lighten($linkColor, 25%);
 $heading1Size: 2em;
 $heading2Size: 1.3em;
 $heading3Size: 1.1em;
-$heading4Size: 1.0em;
+$heading4Size: 1em;
 
 $overlayElementBgColor: 0, 0, 0;
 $overlayElementFgColor: 240, 240, 240;
@@ -33,86 +32,108 @@ $overlayElementFgColor: 240, 240, 240;
 // Change text colors against dark slide backgrounds
 @include dark-bg-text-color(#fff);
 
-
 // Theme template ------------------------------
 @import "/node_modules/reveal.js/css/theme/template/theme";
 // ---------------------------------------------
 
 .reveal {
-    $padding-h: 80px;
-    background: #aaa;
+  $padding-h: 80px;
+  background: #aaa;
 
+  .slides {
+    background: #fff;
 
-    .slides {
-        background: #fff;
+    section {
+      height: 100%;
+      padding: 0 $padding-h;
+      box-sizing: border-box;
 
-        section {
-            height: 100%;
-            padding: 0 $padding-h;
-            box-sizing: border-box;
+      &:before {
+        content: " ";
+        position: absolute;
+        top: 30px;
+        right: calc(30px - $padding-h);
+        height: 80px;
+        width: calc(100px * 184 / 44);
+      }
+    }
+  }
 
-            &:before {
-                content: " ";
-                position: absolute;
-                top: 30px;
-                right: calc(30px - $padding-h);
-                height: 80px;
-                width: calc(100px*184/44);
-                background: url(logo.svg) no-repeat;
-            }
-        }
+  .slide-number {
+    background: #3c3c3c;
+  }
+
+  h1 {
+    text-align: left;
+    width: 1300px;
+    background: $accentColor;
+    color: #ffffff;
+    font-size: 80px;
+    line-height: 80px;
+    padding: 30px $padding-h;
+    margin-left: -$padding-h;
+  }
+
+  pre {
+    width: calc(100% - 80px);
+    margin: 20px 40px;
+    padding: 20px;
+
+    &.subtle {
+      width: auto;
+      margin: 3px 0;
+      padding: 3px 6px;
+      display: inline-block;
+      font-size: 0.7em;
+      vertical-align: middle;
     }
 
-    .slide-number {
-        background: #3C3C3C;
+    code {
+      max-height: none;
     }
+  }
 
-    h1 {
-        text-align: left;
-        width: 1300px;
-        background: $accentColor;
-        color: #ffffff;
-        font-size: 80px;
-        line-height: 80px;
-        padding: 30px $padding-h;
-        margin-left: -$padding-h;
+  .img {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    box-shadow: 0 5px 15px #00000026;
+  }
+
+  .compiler-output {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    box-shadow: 0 5px 15px #00000026;
+    background-color: white;
+    padding: 10px 10px 30px 10px;
+
+    &:before {
+      content: "clang++";
+      font-size: 50%;
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
     }
 
     pre {
-        width: calc(100% - 80px);
-        margin: 20px 40px;
-        padding: 20px;
-
-        &.subtle {
-            width: auto;
-            margin: 3px 0;
-            padding: 3px 6px;
-            display: inline-block;
-            font-size: .7em;
-            vertical-align: middle;
-        }
-
-        code {
-            max-height: none;
-        }
+      font-size: 40%;
+      width: auto;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
     }
+  }
 
-    .img {
-        position: absolute;
-        right: 20px;
-        bottom: 20px;
-        box-shadow: 0 5px 15px #00000026;
-    }
-
-    .fragment:not(.custom) {
-        will-change: auto;
-    }
+  .fragment:not(.custom) {
+    will-change: auto;
+  }
 }
 
 .row {
-    display: flex;
+  display: flex;
 
-    .col {
-        flex-grow: 1;
-    }
+  .col {
+    flex-grow: 1;
+  }
 }
