@@ -1,9 +1,9 @@
 doctype html
 html
   head
-    link(rel="stylesheet", href="/node_modules/reveal.js/dist/reveal.css")
-    link(rel="stylesheet", href="/node_modules/highlight.js/styles/vs.css")
-    link(rel="stylesheet", href="theme.scss")
+    link(rel="stylesheet" href="/node_modules/reveal.js/dist/reveal.css")
+    link(rel="stylesheet" href="/node_modules/highlight.js/styles/vs.css")
+    link(rel="stylesheet" href="theme.scss")
   body
     .reveal
       .slides
@@ -71,8 +71,8 @@ html
           :code
             template<[...] modulus>
             struct Modulo {
-                using ValueType = [...];
-                ValueType value;
+              using ValueType = [...];
+              ValueType value;
             }
           ul
             li What should #[:code(inline, subtle) ValueType] be?
@@ -89,7 +89,7 @@ html
           include:code(compile="ct-datatype-output") code/ct_datatype.cpp
           .compiler-output
             pre#ct-datatype-output
-          
+
           .fragment.img(style="padding: 30px; bottom: auto; top: 60px;")
             h2 Trade-offs
 
@@ -104,18 +104,41 @@ html
 
         section
           h1 Compile-time operators
-          .row 
-           .col 
-            :code
-              using Mod = Modulo<17>;
-              Mod a{7};
-
-              auto b = 2 + (a + 3) * 7;
-           .col 
-            :code
-              Mod a{7};
-              a += 3;
-              a *= -a;
+          .row
+            .col
+              :code
+                using Mod = Modulo<17>;
+                Mod a{7};
+            .col
+              :code
+                Mod a{7};
+                a += 3;
+                a *= -a;
+            .col
+              :code
+                Mod a{7};
+                Mod b{4};
+                auto c = b - (a + 3) * 7;
+          .row
+            .col
+              ul
+                li Which operators?
+                  ul
+                    li #[:code(inline, subtle) operator+], #[:code(inline, subtle) operator-], #[:code(inline, subtle) operator*], #[:code(inline, subtle) operator/]
+                    li #[:code(inline, subtle) operator+=], #[:code(inline, subtle) operator-=], #[:code(inline, subtle) operator*=], #[:code(inline, subtle) operator/=]
+                    li #[:code(inline, subtle) operator+()], #[:code(inline, subtle) operator-()]
+                    li #[:code(inline, subtle) operator++()], #[:code(inline, subtle) operator--()], #[:code(inline, subtle) operator++(int)], #[:code(inline, subtle) operator--(int)]
+                    li #[:code(inline, subtle) operator&lt;=&gt;], #[:code(inline, subtle) operator==]
+            .col
+              ul
+                li What about assignment operators?
+                li What about conversion operators?
+                  ul
+                    li #[:code(inline, subtle) operator int()]
+                    li #[:code(inline, subtle) operator bool()]
+                li Can we reuse code between e.g. #[:code(inline, subtle) operator+] and #[:code(inline, subtle) operator+=]?
+                li Can we default some operators?
+                li Stream operators #[:code(inline, subtle) operator&lt;&lt;()], #[:code(inline, subtle) operator&gt;&gt;()]?
         section
           h1 Compile-time operators
           include:code(compile="ct-operators-output") code/ct_operators.cpp
@@ -171,11 +194,11 @@ html
                   using std::swap;
                   swap(a, b); // std::swap or ADL will find ns1::swap
                 }
-                
+
               :code
                 int main() {
                   std::cout << "Foo " << 42 << std::endl;
                 }
 
 
-    script(src="index.js", type="module")
+    script(src="index.js" type="module")
