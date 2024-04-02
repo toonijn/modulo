@@ -98,6 +98,7 @@ $overlayElementFgColor: 240, 240, 240;
     right: 20px;
     bottom: 20px;
     box-shadow: 0 5px 15px #00000026;
+    background-color: white;
   }
 
   .compiler-output {
@@ -107,6 +108,7 @@ $overlayElementFgColor: 240, 240, 240;
     box-shadow: 0 5px 15px #00000026;
     background-color: white;
     padding: 10px 10px 30px 10px;
+    opacity: 0.9;
 
     &:before {
       content: "clang++";

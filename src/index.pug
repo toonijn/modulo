@@ -89,7 +89,33 @@ html
           include:code(compile="ct-datatype-output") code/ct_datatype.cpp
           .compiler-output
             pre#ct-datatype-output
+          
+          .fragment.img(style="padding: 30px; bottom: auto; top: 60px;")
+            h2 Trade-offs
 
+            ul
+              li Storage
+              li Caching 
+              li Aritmetic speed
+              li Vectorization
+              li Unaligned loads
+              li Even larger moduli
+            p Benchmark it!
+
+        section
+          h1 Compile-time operators
+          .row 
+           .col 
+            :code
+              using Mod = Modulo<17>;
+              Mod a{7};
+
+              auto b = 2 + (a + 3) * 7;
+           .col 
+            :code
+              Mod a{7};
+              a += 3;
+              a *= -a;
         section
           h1 Compile-time operators
           include:code(compile="ct-operators-output") code/ct_operators.cpp
