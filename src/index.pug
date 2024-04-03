@@ -62,12 +62,12 @@ html
             auto b = 3 + a * 7
             a += a * b;
         section
-          h1 First compile-time design
+          h1 Known modulus, first design
           include:code code/ct_naive.cpp
           .img.fragment(style="background: white; padding: 10px")
             include code/precedence.pug
         section
-          h1 Compile-time datatype
+          h1 General datatype
           :code
             template<[...] modulus>
             struct Modulo {
@@ -85,7 +85,7 @@ html
                     li Does #[:code(inline, subtle) value * value] need to fit?
                 li Do we care for #[:code(inline, subtle) __uint128]?
         section
-          h1 Compile-time datatype
+          h1 General datatype
           include:code(compile="ct-datatype-output") code/ct_datatype.cpp
           .compiler-output
             pre#ct-datatype-output
@@ -100,10 +100,10 @@ html
               li Vectorization
               li Unaligned loads
               li Even larger moduli
-            p Benchmark it!
+            p Run benchmarks!
 
         section
-          h1 Compile-time operators
+          h1 Operator overloading
           .row
             .col
               :code
@@ -140,10 +140,47 @@ html
                 li Can we default some operators?
                 li Stream operators #[:code(inline, subtle) operator&lt;&lt;()], #[:code(inline, subtle) operator&gt;&gt;()]?
         section
-          h1 Compile-time operators
-          include:code(compile="ct-operators-output") code/ct_operators.cpp
+          h1 operator==
+          include:code code/ct_compare.cpp
+        section 
+          h1 Aside: value categories
+          p Intuitively:
+          .row
+            .col
+              p value
+              :code
+                T
+                T const
+              p "Use your own copy!"
+            .col
+              p lvalue reference
+              :code
+                T&
+                T const&
+              p "You can borrow my value, but I need it back."
+            .col
+              p rvalue reference
+              :code
+                T&&
+                T const&&
+              p "Here is my value, I don't care about it anymore."
+          br
+          p Perfect forwarding with #[:code(inline, subtle) std::forward] and #[:code(inline, subtle) decltype(auto)]
+          :code
+            template<typename T>
+            decltype(auto) f(T&& t) {
+              return g(std::forward<T>(t));
+            }
+        section
+          h1 Aritmetic operators (1)
+          include:code(compile="ct_aritmetic_operators_1") code/ct_aritmetic_operators_1.cpp
           .compiler-output
-            pre#ct-operators-output 
+            pre#ct_aritmetic_operators_1
+        section
+          h1 Aritmetic operators (2)
+          include:code(compile="ct_aritmetic_operators_2") code/ct_aritmetic_operators_2.cpp
+          .compiler-output
+            pre#ct_aritmetic_operators_2
         section
           h1 Does this break everything?
           :code
@@ -160,7 +197,6 @@ html
             a.cite(
               href="https://en.cppreference.com/w/cpp/language/friend#Notes"
             ) cppreference.com/w/cpp/language/friend#Notes
-
         section
           h1 Aside: argument-dependent lookup (ADL)
           .row
@@ -199,6 +235,30 @@ html
                 int main() {
                   std::cout << "Foo " << 42 << std::endl;
                 }
+        section
+          h1 The constructor(s)
+
+          h2 Let's review!
+          :code
+            template<std::uint64_t modulus_>
+            struct Modulo {
+              using ValueType = [...];
+              constexpr ValueType modulus(modulus_);
+              ValueType value;
+
+              template<typename V>
+              Modulo(V raw_value)
+                : value(raw_value % modulus_) {}
+            }
+          .fragment
+            ul
+              li Should we avoid the implicit one-argument constructor?
+              li Could it be #[:code(inline, subtle) constexpr]?
+              li What about the copy and move constructor?
+              li Can the constructor as a template be improved?
+              li Are the arithmetic conversions correct in #[i all] cases?
+
+        
 
 
     script(src="index.js" type="module")

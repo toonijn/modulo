@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.py3": "python",
         "functional": "cpp",
         "system_error": "cpp",
         "xtr1common": "cpp",
@@ -47,6 +48,28 @@
         "xmemory0": "cpp",
         "xstddef": "cpp",
         "xstring": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "optional": "cpp",
+        "array": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "compare": "cpp",
+        "complex": "cpp",
+        "concepts": "cpp",
+        "condition_variable": "cpp",
+        "deque": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "random": "cpp",
+        "string_view": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "sstream": "cpp",
+        "stop_token": "cpp",
+        "cinttypes": "cpp"
     }
 }

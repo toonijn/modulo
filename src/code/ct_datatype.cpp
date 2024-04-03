@@ -3,17 +3,17 @@
 #include <cstdint>
 
 template<std::uint64_t v, typename FirstAlt=void, typename... Alts>
-struct AddableValueType {
+struct ValueTypeHelper {
     using type = typename std::conditional_t<
         v < std::numeric_limits<FirstAlt>::max()/2,
-        std::type_identity<FirstAlt>, AddableValueType<v, Alts...>
+        std::type_identity<FirstAlt>, ValueTypeHelper<v, Alts...>
     >::type;
 };
 
 template<std::uint64_t raw_modulus>
 struct Modulo {
-    using ValueType = typename AddableValueType<raw_modulus,
-        std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
+    using ValueType = typename ValueTypeHelper<raw_modulus,
+            std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
     static constexpr ValueType modulus = raw_modulus;
     ValueType value;
 };
