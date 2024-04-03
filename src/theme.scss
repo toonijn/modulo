@@ -130,6 +130,25 @@ $overlayElementFgColor: 240, 240, 240;
   .fragment:not(.custom) {
     will-change: auto;
   }
+
+  blockquote {
+    box-shadow: 0 5px 15px #00000026;
+    width: calc(100% - 80px);
+    margin: 40px 40px;
+    padding: 20px;
+    font-size: 40px;
+    text-align: left;
+    line-height: 60px;
+    font-style: italic;
+    color: #3c3c3c;
+
+    .cite {
+      display: block;
+      text-align: right;
+      font-size: 80%;
+      font-style: normal;
+    }
+  }
 }
 
 .row {

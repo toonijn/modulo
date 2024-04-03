@@ -236,6 +236,10 @@ html
                   std::cout << "Foo " << 42 << std::endl;
                 }
         section
+          h1 operator*
+          :code
+            // TODO
+        section
           h1 The constructor(s)
 
           h2 Let's review!
@@ -257,8 +261,87 @@ html
               li What about the copy and move constructor?
               li Can the constructor as a template be improved?
               li Are the arithmetic conversions correct in #[i all] cases?
+        section
+          h1 The constructor(s)
+          :code
+            // TODO
+        section
+          h1 Let's recap
+          p Known modulus
+          ul
+            li Member type
+            li Constructors
+            li Operators
+        section
+          h1 Run-time modulus
+          h2 What should #[:code(inline, subtle) Mod] be?
+          :code
+            // Something magical to get a Mod type
+            auto a = Mod(3);
+            a -= 2;
+            auto b = 3 + a * 7
+            a += a * b;
+          ul
+            li Could it dependent on requested modulus?
+            li Should it store the modulus?
+            li What should the value type be?
+            li How do we choose it at runtime?
+        section
+          h1 Aside: dependent type
 
-        
+          blockquote
+            | In computer science and logic, a dependent type is a type whose definition depends on a value. It is an overlapping feature of type theory and type systems. [...]
+            br
+            | [A common example of dependent types are dependent functions.]
+            | The return type of a dependent function may depend on the value (not just type) of one of its arguments.
+            | For instance, a function that takes a positive integer #[:code(inline, subtle) n] may return an array of length #[:code(inline, subtle) n], where the array length is part of the type of the array.
+            a.cite(
+              href="https://en.wikipedia.org/wiki/Dependent_type"
+            ) en.wikipedia.org/wiki/Dependent_type
+          :code
+            // Fictional example
+            auto array_of_length(std::size_t n) -> std::array<double, n> {
+              // ...
+            }
+        section
+          h1 Aside: dependent type
+          blockquote
+            | In computer science and logic, a dependent type is a type whose definition depends on a value.
+            a.cite(
+              href="https://en.wikipedia.org/wiki/Dependent_type"
+            ) en.wikipedia.org/wiki/Dependent_type
 
+          br
+          :code
+            std::variant<int, double> v = get_a_variant_from_somewhere();
 
+            std::visit([](auto&& arg) {
+              std::cout << arg << std::endl;
+            }, v);
+          
+          div The #[i value] of #[:code(inline, subtle) v] determines what the #[i type] of #[:code(inline, subtle) arg] will be.
+        section 
+          h1 Type dependent on modulus
+
+          p Since C++20 we can write:
+
+          :code
+            modulo(17, []<typename Mod>() {
+              auto a = Mod(3);
+              a -= 8;
+              std::cout << a << std::endl;
+            });
+          
+          p or
+
+          :code
+            int modulus;
+            std::cout >> modulus;
+            bool is_special = modulo(modulus, []<typename Mod>() {
+              auto a = Mod(3);
+              a -= 8 * a;
+              return a == -1;
+            });
+          br
+          div But, what happens in #[:code(inline, subtle) modulo(auto modulus, auto lambda)]?
     script(src="index.js" type="module")
