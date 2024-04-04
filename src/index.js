@@ -30,7 +30,11 @@ for (const toCompile of document.getElementsByClassName("compile")) {
       .then((text) => {
         const data = JSON.parse(text);
         if(data.code === 0) {
-          output.innerText = "exit code: 0";
+          if(output.dataset.assembly !== undefined) {
+            output.innerText = data.output.replace(/^\s*\..*$/img, "").replace(/\n+/g, '\n').trim();
+          } else {
+            output.innerText = "exit code: 0";
+          }
         } else {
           output.innerText = data.stdout + data.stderr; 
         }

@@ -237,8 +237,21 @@ html
                 }
         section
           h1 operator*
-          :code
-            // TODO
+          .row
+            .col
+              include:code(compile="ct_product_simple") code/ct_product_simple.cpp
+            .col.compiler-col
+              pre#ct_product_simple(data-assembly)
+        section
+          h1 operator*
+          .row
+            .col
+              include:code(compile="ct_product") code/ct_product.cpp
+            .col.compiler-col
+              pre#ct_product(data-assembly)
+        section
+          h1 Aside: mul and div
+          p TODO: Compiler explorer's analysis
         section
           h1 The constructor(s)
 
@@ -318,7 +331,7 @@ html
             std::visit([](auto&& arg) {
               std::cout << arg << std::endl;
             }, v);
-          
+
           div The #[i value] of #[:code(inline, subtle) v] determines what the #[i type] of #[:code(inline, subtle) arg] will be.
         section 
           h1 Type dependent on modulus
@@ -331,7 +344,7 @@ html
               a -= 8;
               std::cout << a << std::endl;
             });
-          
+
           p or
 
           :code

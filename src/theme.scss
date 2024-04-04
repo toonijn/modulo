@@ -127,6 +127,21 @@ $overlayElementFgColor: 240, 240, 240;
     }
   }
 
+  .compiler-col {
+    max-height: 800px;
+    box-shadow: 0 5px 15px #00000026;
+    margin: 20px 40px;
+    padding: 20px;
+
+    overflow: auto;
+    pre {
+      width: auto;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
   .fragment:not(.custom) {
     will-change: auto;
   }

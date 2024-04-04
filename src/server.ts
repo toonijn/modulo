@@ -45,6 +45,7 @@ http
             [
               `main${id}.cpp`,
               "-std=c++2a",
+              "-O2",
               "-S",
               "-mllvm",
               "--x86-asm-syntax=intel",
