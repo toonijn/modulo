@@ -4,18 +4,18 @@
 
 template<std::uint64_t v, typename FirstAlt=void, typename... Alts>
 struct ValueTypeHelper {
-    using type = typename std::conditional_t<
-        v < std::numeric_limits<FirstAlt>::max()/2,
-        std::type_identity<FirstAlt>, ValueTypeHelper<v, Alts...>
-    >::type;
+  using type = typename std::conditional_t<
+    v < std::numeric_limits<FirstAlt>::max()/2,
+    std::type_identity<FirstAlt>, ValueTypeHelper<v, Alts...>
+  >::type;
 };
 
 template<std::uint64_t raw_modulus>
 struct Modulo {
-    using ValueType = typename ValueTypeHelper<raw_modulus,
-            std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
-    static constexpr ValueType modulus = raw_modulus;
-    ValueType value;
+  using ValueType = typename ValueTypeHelper<raw_modulus,
+      std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
+  static constexpr ValueType modulus = raw_modulus;
+  ValueType value;
 };
 
 using M300 = Modulo<300>;

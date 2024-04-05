@@ -243,15 +243,29 @@ html
             .col.compiler-col
               pre#ct_product_simple(data-assembly)
         section
+          h1 Aside: compilers hate div
+          h2 Example: 16-bit division by 5
+          div To calculate #[:code(inline, subtle) x / 5]:
+          ul
+            li Multiply #[:code(inline, subtle) x] and #[:code(inline, subtle) (0011 0011 0011 0011)&#8322]
+              :code
+                1 / 5 == (0.0011 0011 0011...)&#8322;
+            li The high 16-bit are the quotient #[:code(inline, subtle) q]
+            li #[:code(inline, subtle) x - 5 * q] is the remainder
+          .fragment
+            br
+            h3 In hardware:
+            ul
+              li x86: #[:code(inline, subtle) MUL] computes both low and high bits
+              li ARM: #[:code(inline, subtle) MUL] computes low bits, #[:code(inline, subtle) UMULH] computes high bits
+              li AVR: #[:code(inline, subtle) MUL] computes low bits, #[:code(inline, subtle) FMUL] computes high bits
+        section
           h1 operator*
           .row
             .col
               include:code(compile="ct_product") code/ct_product.cpp
             .col.compiler-col
               pre#ct_product(data-assembly)
-        section
-          h1 Aside: mul and div
-          p TODO: Compiler explorer's analysis
         section
           h1 The constructor(s)
 
@@ -299,6 +313,53 @@ html
             li Should it store the modulus?
             li What should the value type be?
             li How do we choose it at runtime?
+        section
+          h1 Run-time modulus: struct
+          .row
+            .col
+              :code
+                template<typename ModInfo>
+                struct ModuloImpl {
+                  typename ModInfo::ValueType value;
+
+                  ModuloImpl<ModInfo>& operator+=(
+                      ModuloImpl<ModInfo> const& rhs
+                  ) {
+                    value += rhs.value;
+                    if(value >= ModInfo::modulus)
+                      value -= ModInfo::modulus;
+
+                    return *this;
+                  }
+
+                  ModuloImpl<ModInfo>& operator*=(
+                      ModuloImpl<ModInfo> const& rhs
+                  ) {
+                    ModInfo::product(value, rhs.value);
+                    return *this;
+                  }
+                };
+            .col
+              :code
+                template<std::uint64_t modulus_>
+                struct CTModuloInfo {
+                  using ValueType = [...];
+                  static constexpr ValueType modulus = modulus_;
+
+                  static void product(
+                      ValueType& lhs, ValueType const& rhs
+                  ) {
+                    using Extended = std::conditional_t<
+                      std::bitwidth(modulus_) < 32,
+                      std::uint64_t,
+                      __uint128_t
+                    >;
+                    lhs = (ValueType) ((Extended) lhs * rhs % modulus_);
+                  }
+                };
+
+                template<std::uint64_t modulus_>
+                using Modulo = ModuloImpl<CTModuloInfo<modulus_>>;
         section
           h1 Aside: dependent type
 
@@ -349,7 +410,7 @@ html
 
           :code
             int modulus;
-            std::cout >> modulus;
+            std::cin >> modulus;
             bool is_special = modulo(modulus, []<typename Mod>() {
               auto a = Mod(3);
               a -= 8 * a;
@@ -357,4 +418,9 @@ html
             });
           br
           div But, what happens in #[:code(inline, subtle) modulo(auto modulus, auto lambda)]?
+        section 
+          h1 TODO
+        section
+          h1 Aside: mul and div
+          p TODO: Compiler explorer's analysis
     script(src="index.js" type="module")
