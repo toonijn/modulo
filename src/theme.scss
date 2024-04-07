@@ -164,6 +164,33 @@ $overlayElementFgColor: 240, 240, 240;
       font-style: normal;
     }
   }
+
+  .title {
+    h1 {
+      padding-top: 250px;
+      text-align: center;
+      width: 100%;
+      font-size: 120px;
+      line-height: 150px;
+    }
+    .author {
+      margin-top: 50px;
+    }
+
+    .contact {
+      position: absolute;
+      bottom: 20px;
+      right: 200px;
+      font-size: 80%;
+      text-align: right;
+    }
+  }
+
+  .pe-img {
+    box-shadow: 0 5px 15px #00000026;
+    position: absolute;
+    transform: scale(1.5);
+  }
 }
 
 .row {

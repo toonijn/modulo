@@ -7,41 +7,75 @@ html
   body
     .reveal
       .slides
-        section
-          h1 Table Of Content
-          ul
-            li background
-              li about me
-              li why I care about modulo
-              li design goals (correctness, performance, easy to use), non-goals (easy to understand, small moduli, primes, perfect)
-            li Modulo known at compile time
-              ul
-                li member type
-                li operator+,-* with adl
-                li something about operator/?
-                li constructor
-            li Unknown modulus
-              ul
-                li class design (member type, where to store modulus)
-                li dependent types
-                li detour about assume
-                li __int128, umul128
+        section.title
+          h1 Building a class for modular arithmetic
+          h2 Writing modern C++ is not easy.
+          .author Toon Baeyens
+          .contact toonijn.be<br />toon.baeyens@gmail.com
 
-        section
-          h1 Design goals
+        section(style="background: url('img/maxwell.png') no-repeat bottom right; background-size: 1100px;")
+          h1 About me
           .row
             .col
-              h2 Goals
+              h3 I worked at
               ul
-                li Correctness
-                li Easy to use
-                li Performance
+                li think-cell (2023-2024)
+                  ul
+                    li C++ codebase for their powerpoint add-in
+                li Ghent University (2018-2023)
+                  ul 
+                    li Teaching assistant
+                    li PhD in mathematics:<br />Algorithms for time-independent Schrödinger equations 
             .col
-              h2 Non-goals
+              h3 I love exploring
               ul
-                li Easy to understand
-                li Mathematical optimizations
-                li Perfection
+                li numerical mathematics
+                li beautiful visualizations
+                li the obscure corners of C++
+
+          div(style="position:absolute; left:20px; bottom:20px; text-align: left; font-size:80%;")
+            | Toon Baeyens
+            br
+            | toon.baeyens@gmail.com
+        section
+          h1 Why?
+          img.pe-img(src="img/pe435.png" style="left: 150px; top: 250px;")
+          img.pe-img(src="img/pe820.png" style="left: 1100px; top: 150px;")
+          img.pe-img(src="img/pe864.png" style="left: 500px; top: 720px;")
+          div(style="position:absolute; right:250px; bottom:100px; text-align: left;")
+            a(href="https://projecteuler.net/") projecteuler.net
+        section
+          h1 Table Of Content
+          h2 Building a class for modular arithmetic
+
+          .row
+            .col
+              ul 
+                li Known modulus
+                  ul
+                    li member type
+                    li #[:code(inline, subtle) operator==]
+                    li #[:code(inline, subtle) operator+], #[:code(inline, subtle) operator+=]
+                    li #[:code(inline, subtle) operator*]
+            .col
+              ul 
+                li Unknown modulus
+                  ul
+                    li member type
+                    li picking the correct type
+                    li #[:code(inline, subtle) operator*]
+                    li usage
+          br
+          h3 On the way we will explore
+          .row
+            .col 
+              ul
+                li value categories
+                li argument-dependent lookup
+                li #[:code(inline, subtle) MUL], #[:code(inline, subtle) UMULH], #[:code(inline, subtle) FMUL]
+                li dependent types
+                li
+                  :code(inline, subtle) [[assume(...)]]
 
         section
           h1 Design goals
@@ -61,6 +95,22 @@ html
             a -= 2;
             auto b = 3 + a * 7
             a += a * b;
+
+        section
+          h1 Design goals
+          .row
+            .col
+              h2 Goals
+              ul
+                li Correctness
+                li Easy to use
+                li Performance
+            .col
+              h2 Non-goals
+              ul
+                li Easy to understand
+                li Mathematical optimizations
+                li Perfection
         section
           h1 Known modulus, first design
           include:code code/ct_naive.cpp
@@ -163,9 +213,9 @@ html
               :code
                 T&&
                 T const&&
-              p "Here is my value, I don't care about it anymore."
+              p "Here is my value, do with it what you want."
           br
-          p Perfect forwarding with #[:code(inline, subtle) std::forward] and #[:code(inline, subtle) decltype(auto)]
+          p Perfect forwarding with #[:code(inline, subtle) T&&], #[:code(inline, subtle) std::forward] and #[:code(inline, subtle) decltype(auto)]
           :code
             template<typename T>
             decltype(auto) f(T&& t) {
@@ -292,6 +342,7 @@ html
           h1 The constructor(s)
           :code
             // TODO
+          include:code code/ct_constructor.cpp
         section
           h1 Let's recap
           p Known modulus
@@ -317,29 +368,9 @@ html
           h1 Run-time modulus: struct
           .row
             .col
-              :code
-                template<typename ModInfo>
-                struct ModuloImpl {
-                  typename ModInfo::ValueType value;
-
-                  ModuloImpl<ModInfo>& operator+=(
-                      ModuloImpl<ModInfo> const& rhs
-                  ) {
-                    value += rhs.value;
-                    if(value >= ModInfo::modulus)
-                      value -= ModInfo::modulus;
-
-                    return *this;
-                  }
-
-                  ModuloImpl<ModInfo>& operator*=(
-                      ModuloImpl<ModInfo> const& rhs
-                  ) {
-                    ModInfo::product(value, rhs.value);
-                    return *this;
-                  }
-                };
+              include:code code/rt_modulo_impl.cpp
             .col
+              h4 Known modulus
               :code
                 template<std::uint64_t modulus_>
                 struct CTModuloInfo {
@@ -347,7 +378,7 @@ html
                   static constexpr ValueType modulus = modulus_;
 
                   static void product(
-                      ValueType& lhs, ValueType const& rhs
+                    ValueType& lhs, ValueType const& rhs
                   ) {
                     using Extended = std::conditional_t<
                       std::bitwidth(modulus_) < 32,
@@ -360,6 +391,30 @@ html
 
                 template<std::uint64_t modulus_>
                 using Modulo = ModuloImpl<CTModuloInfo<modulus_>>;
+        section
+          h1 Unknown modulus: struct
+          .row
+            .col
+              include:code code/rt_modulo_impl.cpp
+            .col
+              h4 Unknown modulus
+              :code
+                template<std::uint64_t max_modulus_>
+                struct CTModuloInfo {
+                  using ValueType = [...];
+                  static ValueType modulus;
+
+                  static void product(
+                    ValueType& lhs, ValueType const& rhs
+                  ) {
+                    using Extended = std::conditional_t<
+                      std::bitwidth(max_modulus_) < 32,
+                      std::uint64_t,
+                      __uint128_t
+                    >;
+                    lhs = (ValueType) ((Extended) lhs * rhs % max_modulus_);
+                  }
+                };
         section
           h1 Aside: dependent type
 
