@@ -21,7 +21,7 @@ html
               ul
                 li think-cell (2023-2024)
                   ul
-                    li C++ codebase for their powerpoint add-in
+                    li C++ codebase for their PowerPoint add-in
                 li Ghent University (2018-2023)
                   ul 
                     li Teaching assistant
@@ -95,7 +95,9 @@ html
             a -= 2;
             auto b = 3 + a * 7
             a += a * b;
-
+            if(a == b) {
+              // ...
+            }
         section
           h1 Design goals
           .row
@@ -146,7 +148,7 @@ html
             ul
               li Storage
               li Caching 
-              li Aritmetic speed
+              li Arithmetic speed
               li Vectorization
               li Unaligned loads
               li Even larger moduli
@@ -222,12 +224,12 @@ html
               return g(std::forward<T>(t));
             }
         section
-          h1 Aritmetic operators (1)
+          h1 Arithmetic operators (1)
           include:code(compile="ct_aritmetic_operators_1") code/ct_aritmetic_operators_1.cpp
           .compiler-output
             pre#ct_aritmetic_operators_1
         section
-          h1 Aritmetic operators (2)
+          h1 Arithmetic operators (2)
           include:code(compile="ct_aritmetic_operators_2") code/ct_aritmetic_operators_2.cpp
           .compiler-output
             pre#ct_aritmetic_operators_2
@@ -310,6 +312,38 @@ html
               li ARM: #[:code(inline, subtle) MUL] computes low bits, #[:code(inline, subtle) UMULH] computes high bits
               li AVR: #[:code(inline, subtle) MUL] computes low bits, #[:code(inline, subtle) FMUL] computes high bits
         section
+          h1 Aside: compilers hate div
+          .row
+            .col
+              :code
+                std::uint64_t volatile zero = 0;
+                static void mul(benchmark::State& state) {
+                  std::uint64_t lhs = zero;
+                  std::uint64_t rhs = zero;
+                  std::uint64_t constexpr modulus = 711;
+
+                  for (auto _ : state) {
+                    benchmark::DoNotOptimize(lhs * rhs % modulus);
+                    ++lhs, ++rhs;
+                  }
+                }
+            .col
+              :code
+                std::uint64_t volatile zero = 0;
+                static void div(benchmark::State& state) {
+                  std::uint64_t lhs = zero;
+                  std::uint64_t rhs = zero;
+                  std::uint64_t modulus = zero + 711;
+                  
+                  for (auto _ : state) {
+                    benchmark::DoNotOptimize(lhs * rhs % modulus);
+                    ++lhs, ++rhs;
+                  }
+                }
+          img(src="img/mul_div.png")
+          .img(style="padding: 10px; font-size: 70%;")
+            a(href="https://quick-bench.com/q/L9qY-KiBf6uFEu4D9n309qjRE9A") quick-bench.com
+        section
           h1 operator*
           .row
             .col
@@ -324,7 +358,6 @@ html
             template<std::uint64_t modulus_>
             struct Modulo {
               using ValueType = [...];
-              constexpr ValueType modulus(modulus_);
               ValueType value;
 
               template<typename V>
@@ -365,7 +398,7 @@ html
             li What should the value type be?
             li How do we choose it at runtime?
         section
-          h1 Run-time modulus: struct
+          h1 Compile-time modulus
           .row
             .col
               include:code code/rt_modulo_impl.cpp
@@ -392,7 +425,7 @@ html
                 template<std::uint64_t modulus_>
                 using Modulo = ModuloImpl<CTModuloInfo<modulus_>>;
         section
-          h1 Unknown modulus: struct
+          h1 Run-time modulus
           .row
             .col
               include:code code/rt_modulo_impl.cpp
@@ -400,7 +433,7 @@ html
               h4 Unknown modulus
               :code
                 template<std::uint64_t max_modulus_>
-                struct CTModuloInfo {
+                struct RTModuloInfo {
                   using ValueType = [...];
                   static ValueType modulus;
 
@@ -458,7 +491,7 @@ html
             modulo(17, []<typename Mod>() {
               auto a = Mod(3);
               a -= 8;
-              std::cout << a << std::endl;
+              std::cout << a.value << std::endl;
             });
 
           p or
