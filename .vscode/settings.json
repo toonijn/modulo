@@ -71,6 +71,10 @@
         "sstream": "cpp",
         "stop_token": "cpp",
         "cinttypes": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "hash_map": "cpp",
+        "set": "cpp",
+        "ranges": "cpp",
+        "format": "cpp"
     }
 }

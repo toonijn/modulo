@@ -40,43 +40,87 @@ http
         .pipe(fs.createWriteStream(`compile/main${id}.cpp`))
         .on("finish", () => {
           response.writeHead(200, headers);
-          const clang = child_process.spawn(
-            "clang++",
-            [
-              `main${id}.cpp`,
-              "-std=c++2a",
-              "-O2",
-              "-S",
-              "-mllvm",
-              "--x86-asm-syntax=intel",
-              "-fno-asynchronous-unwind-tables",
-              "-fno-exceptions",
-              "-fno-rtti",
-              "-o",
-              `main${id}.s`,
-              "2>&1",
-            ],
-            { shell: true, cwd: "compile" }
-          );
-          const stdout = streamToString(clang.stdout);
-          const stderr = streamToString(clang.stderr);
-
-          clang.on("close", async (code) => {
-            response.end(
-              JSON.stringify({
-                code,
-                stdout: await stdout,
-                stderr: await stderr,
-                output:
-                  code === 0
-                    ? await streamToString(
-                        fs.createReadStream(`compile/main${id}.s`)
-                      )
-                    : "",
-              })
+          if (request.url?.includes("/execute")) {
+            const clang = child_process.spawn(
+              "clang++",
+              [`main${id}.cpp`, "-std=c++2a", "-O2", "-o", `main${id}`, "2>&1"],
+              { shell: true, cwd: "compile" }
             );
-            free_id(id);
-          });
+            const clang_stdout = streamToString(clang.stdout);
+            const clang_stderr = streamToString(clang.stderr);
+
+            clang.on("close", async (code) => {
+              if (code != 0) {
+                response.end(
+                  JSON.stringify({
+                    code,
+                    stdout: await clang_stdout,
+                    stderr: await clang_stderr,
+                    output: "",
+                  })
+                );
+                free_id(id);
+              } else {
+                const exe = child_process.spawn(`./main${id}`, [], {
+                  shell: true,
+                  cwd: "compile",
+                });
+                const exe_stdout = streamToString(exe.stdout);
+                const exe_stderr = streamToString(exe.stderr);
+
+                exe.on("close", async (code) => {
+                  response.end(
+                    JSON.stringify({
+                      code,
+                      stdout: "",
+                      stderr: await exe_stderr,
+                      output: await exe_stdout,
+                    })
+                  );
+                  console.log(await exe_stderr, await exe_stdout );
+                  free_id(id);
+                });
+              }
+            });
+          } else {
+            const clang = child_process.spawn(
+              "clang++",
+              [
+                `main${id}.cpp`,
+                "-std=c++2a",
+                "-O2",
+                "-S",
+                "-mllvm",
+                "--x86-asm-syntax=intel",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-exceptions",
+                "-fno-rtti",
+                "-o",
+                `main${id}.s`,
+                "2>&1",
+              ],
+              { shell: true, cwd: "compile" }
+            );
+            const stdout = streamToString(clang.stdout);
+            const stderr = streamToString(clang.stderr);
+
+            clang.on("close", async (code) => {
+              response.end(
+                JSON.stringify({
+                  code,
+                  stdout: await stdout,
+                  stderr: await stderr,
+                  output:
+                    code === 0
+                      ? await streamToString(
+                          fs.createReadStream(`compile/main${id}.s`)
+                        )
+                      : "",
+                })
+              );
+              free_id(id);
+            });
+          }
         });
     }
   })

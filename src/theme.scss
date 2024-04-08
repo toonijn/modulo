@@ -191,6 +191,21 @@ $overlayElementFgColor: 240, 240, 240;
     position: absolute;
     transform: scale(1.5);
   }
+
+  .cloud {
+    font-size: 80%;
+    width: 60%;
+    margin: 0 auto;
+    .word {
+      display: inline-block;
+      margin: 0 0.8em;
+    }
+
+    &.large-cloud {
+      font-size: 110%;
+      width: 90%;
+    }
+  }
 }
 
 .row {

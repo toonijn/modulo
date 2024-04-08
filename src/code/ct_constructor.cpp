@@ -1,19 +1,15 @@
 #include "mod/value_type.h"
-#include
 
-template<std::uint64_t modulus_>
+template<std::uint64_t modulus_> requires (0 != modulus_)
 struct Modulo {
-  ValueType<modulus_> value;
-
-  static_assert(...);
+  ValueType<modulus_> value; // unsigned and 2*modulus_ fits
+  static constexpr ValueType<modulus_> modulus = modulus_;
    
   template<std::integral I>
-  explicit Modulo(I const& raw_value) 
-    : value(
+  Modulo(I const& raw_value) 
+    : value(static_cast<ValueType<modulus_>>(
         std::cmp_less(raw_value,  0)
-        ? 
-        : std::cmp_less(raw_value,  modulus_)
-          ? raw_value
-          : raw_value % modulus_
-    ) {}
+        ? modulus - 1u - (~static_cast<std::make_unsigned_t<I>>(raw_value)) % modulus
+        : std::cmp_less(raw_value,  modulus) ? raw_value : raw_value % modulus
+    )) {}
 };

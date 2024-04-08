@@ -2,24 +2,18 @@
 #include <limits>
 #include <cstdint>
 
-template<std::uint64_t v, typename FirstAlt=void, typename... Alts>
+template<std::uint64_t modulus, typename FirstAlt=void, typename... Alts>
 struct ValueTypeHelper {
   using type = typename std::conditional_t<
-    v < std::numeric_limits<FirstAlt>::max()/2,
-    std::type_identity<FirstAlt>, ValueTypeHelper<v, Alts...>
+    modulus < std::numeric_limits<FirstAlt>::max()/2,
+    std::type_identity<FirstAlt>, ValueTypeHelper<modulus, Alts...>
   >::type;
 };
 
-template<std::uint64_t raw_modulus>
-struct Modulo {
-  using ValueType = typename ValueTypeHelper<raw_modulus,
-      std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
-  static constexpr ValueType modulus = raw_modulus;
-  ValueType value;
-};
+template<std::uint64_t modulus>
+using ValueType = typename ValueTypeHelper<modulus,
+    std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>::type;
 
-using M300 = Modulo<300>;
-static_assert(std::is_same_v<M300::ValueType, std::uint16_t>);
+static_assert(std::is_same_v<ValueType<300>, std::uint16_t>);
 
-using M1e10 = Modulo<10'000'000'000>;
-static_assert(std::is_same_v<M1e10::ValueType, std::uint64_t>);
+static_assert(std::is_same_v<ValueType<10'000'000'000>, std::uint64_t>);

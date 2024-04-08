@@ -1,21 +1,17 @@
-template<typename ModInfo>
+template<typename Info>
 struct ModuloImpl {
-  typename ModInfo::ValueType value;
+  typename Info::ValueType value;
 
-  ModuloImpl<ModInfo>& operator+=(
-    ModuloImpl<ModInfo> const& rhs
+  template<std::integral I>
+  ModuloImpl(I const&);
+
+  ModuloImpl<Info>& operator+=(
+    ModuloImpl<Info> const& rhs
   ) {
     value += rhs.value;
-    if(value >= ModInfo::modulus)
-      value -= ModInfo::modulus;
+    if(value >= Info::modulus)
+      value -= Info::modulus;
 
-    return *this;
-  }
-
-  ModuloImpl<ModInfo>& operator*=(
-    ModuloImpl<ModInfo> const& rhs
-  ) {
-    ModInfo::product(value, rhs.value);
     return *this;
   }
 };

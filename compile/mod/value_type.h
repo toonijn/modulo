@@ -2,6 +2,7 @@
 #include <limits>
 #include <cstdint>
 #include <utility>
+#include <cassert>
 
 template<std::uint64_t v, typename FirstAlt=void, typename... Alts>
 struct ValueTypeHelper {

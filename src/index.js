@@ -22,21 +22,32 @@ for (const toCompile of document.getElementsByClassName("compile")) {
   const output = document.getElementById(toCompile.dataset.compile);
   let i = 0;
   const compile = () => {
-    fetch("http://localhost:1235/", {
-      method: "POST",
-      body: code.innerText,
-    })
+    fetch(
+      output.dataset.execute !== undefined
+        ? "http://localhost:1235/execute"
+        : "http://localhost:1235/",
+      {
+        method: "POST",
+        body: code.innerText,
+      }
+    )
       .then((res) => res.text())
       .then((text) => {
         const data = JSON.parse(text);
-        if(data.code === 0) {
-          if(output.dataset.assembly !== undefined) {
-            output.innerText = data.output.replace(/^\s*\..*$/img, "").replace(/\n+/g, '\n').trim();
+        console.log(data);
+        if (data.code === 0) {
+          if (output.dataset.assembly !== undefined) {
+            output.innerText = data.output
+              .replace(/^\s*\..*$/gim, "")
+              .replace(/\n+/g, "\n")
+              .trim();
+          } else if(output.dataset.execute !== undefined) {
+            output.innerText = data.output.trim();
           } else {
             output.innerText = "exit code: 0";
           }
         } else {
-          output.innerText = data.stdout + data.stderr; 
+          output.innerText = data.stdout + data.stderr;
         }
       });
   };

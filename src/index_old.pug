@@ -61,31 +61,24 @@ html
               ul 
                 li Unknown modulus
                   ul
-                    li dependent types
-                    li selecting the type
-                    li optimizations
-                    li powers
+                    li member type
+                    li picking the correct type
+                    li #[:code(inline, subtle) operator*]
+                    li usage
           br
-          h3 On the way we will touch
-          .cloud
-            .word operator precedence
-            .word #[:code(inline, subtle) std::visit]
-            .word casting integers
-            .word concepts
-            .word comparing integers
-            .word #[:code(inline, subtle) __uint128_t]
-            .word value categories
-            .word argument-dependent lookup
-            .word #[:code(inline, subtle) MUL], #[:code(inline, subtle) UMULH], #[:code(inline, subtle) FMUL]
-            .word fixed-point arithmetic
-            .word micro bechmarking
-            .word dependent types
-            .word
-              :code(inline, subtle) [[assume(...)]]
+          h3 On the way we will explore
+          .row
+            .col 
+              ul
+                li value categories
+                li argument-dependent lookup
+                li #[:code(inline, subtle) MUL], #[:code(inline, subtle) UMULH], #[:code(inline, subtle) FMUL]
+                li dependent types
+                li
+                  :code(inline, subtle) [[assume(...)]]
 
         section
           h1 Design goals
-          br
           h2 Easy to use
           .row
             .col
@@ -107,10 +100,6 @@ html
             }
         section
           h1 Design goals
-          br
-          br
-          br
-          br
           .row
             .col
               h2 Goals
@@ -164,33 +153,7 @@ html
               li Unaligned loads
               li Even larger moduli
             p Run benchmarks!
-        section
-          h1 The constructor
 
-          h2 Let's review!
-          :code
-            template<std::uint64_t modulus_>
-            struct Modulo {
-              using ValueType = [...];
-              ValueType value;
-
-              template<typename V>
-              Modulo(V raw_value)
-                : value(raw_value % modulus_) {}
-            }
-          .fragment
-            ul
-              li Should we avoid the implicit one-argument constructor?
-              li What about the copy and move constructor?
-              li Are the arithmetic conversions correct in #[i all] cases?
-        section
-          h1 The constructor
-          include:code code/ct_constructor.cpp
-          p Since C++20:
-          ul
-            li Two's complement
-            li #[:code(inline, subtle) std::integral]
-            li #[:code(inline, subtle) std::cmp_less]
         section
           h1 Operator overloading
           .row
@@ -227,31 +190,103 @@ html
                     li #[:code(inline, subtle) operator bool()]
                 li Can we reuse code between e.g. #[:code(inline, subtle) operator+] and #[:code(inline, subtle) operator+=]?
                 li Can we default some operators?
-                li Stream operators #[:code(inline, subtle) operator&lt;&lt;()], #[:code(inline, subtle) operator&gt;&gt;()]?>
+                li Stream operators #[:code(inline, subtle) operator&lt;&lt;()], #[:code(inline, subtle) operator&gt;&gt;()]?
         section
-          h1 operator+= and operator+
-          include:code(compile="ct_plus_operator") code/ct_plus_operator.cpp
+          h1 operator==
+          include:code code/ct_compare.cpp
+        section 
+          h1 Aside: value categories
+          p Intuitively:
+          .row
+            .col
+              p value
+              :code
+                T
+                T const
+              p "Use your own copy!"
+            .col
+              p lvalue reference
+              :code
+                T&
+                T const&
+              p "You can borrow my value, but I need it back."
+            .col
+              p rvalue reference
+              :code
+                T&&
+                T const&&
+              p "Here is my value, do with it what you want."
+          br
+          p Perfect forwarding with #[:code(inline, subtle) T&&], #[:code(inline, subtle) std::forward] and #[:code(inline, subtle) decltype(auto)]
+          :code
+            template<typename T>
+            decltype(auto) f(T&& t) {
+              return g(std::forward<T>(t));
+            }
+        section
+          h1 Arithmetic operators (1)
+          include:code(compile="ct_aritmetic_operators_1") code/ct_aritmetic_operators_1.cpp
           .compiler-output
-            pre#ct_plus_operator
+            pre#ct_aritmetic_operators_1
+        section
+          h1 Arithmetic operators (2)
+          include:code(compile="ct_aritmetic_operators_2") code/ct_aritmetic_operators_2.cpp
+          .compiler-output
+            pre#ct_aritmetic_operators_2
         section
           h1 Does this break everything?
           :code
             struct Modulo {
+
               template<typename Lhs, typename Rhs>
-              friend Modulo operator+(Lhs&& lhs, Rhs&& rhs) { ... }
+              friend Modulo operator+(Lhs&& lhs, Rhs&& rhs) {
+                // ...
+              }
             };
+
           blockquote
             | A name first declared in a friend declaration within a class or class template X becomes a member of the innermost enclosing namespace of X, but is not visible for lookup (except argument-dependent lookup that considers X) unless a matching declaration at namespace scope is provided [...].
             a.cite(
               href="https://en.cppreference.com/w/cpp/language/friend#Notes"
             ) cppreference.com/w/cpp/language/friend#Notes
-          .fragment
-            :code
-              struct Modulo {
-                template<typename Lhs, typename Rhs>
-                requires (std::is_same_v<std::decay_t<Lhs>, Modulo> || std::is_same_v<std::decay_t<Rhs>, Modulo>)
-                friend Modulo operator+(Lhs&& lhs, Rhs&& rhs) { ... }
-              };
+        section
+          h1 Aside: argument-dependent lookup (ADL)
+          .row
+            .col
+              :code
+                namespace ns1 {
+                  struct A {};
+
+                  void f(A) {}
+                }
+
+                namespace ns2 {
+                  void g(ns1::A) {}
+                }
+
+                int main() {
+                  ns1::A a;
+                  f(a); // f will be found
+                  g(a); // g will not
+                }
+            .col
+              :code
+                namespace ns1 {
+                  struct A {};
+
+                  void swap(A&, A&) { //... }
+                }
+
+                template<typename T>
+                void f(T a, T b) {
+                  using std::swap;
+                  swap(a, b); // std::swap or ADL will find ns1::swap
+                }
+
+              :code
+                int main() {
+                  std::cout << "Foo " << 42 << std::endl;
+                }
         section
           h1 operator*
           .row
@@ -299,7 +334,7 @@ html
                   std::uint64_t lhs = zero;
                   std::uint64_t rhs = zero;
                   std::uint64_t modulus = zero + 711;
-
+                  
                   for (auto _ : state) {
                     benchmark::DoNotOptimize(lhs * rhs % modulus);
                     ++lhs, ++rhs;
@@ -316,27 +351,38 @@ html
             .col.compiler-col
               pre#ct_product(data-assembly)
         section
-          h1 Table Of Content
-          br
-          br
-          h2 Building a class for modular arithmetic
-          .row
-            .col
-              ul 
-                li Known modulus
-                  ul
-                    li member type
-                    li #[:code(inline, subtle) operator==]
-                    li #[:code(inline, subtle) operator+], #[:code(inline, subtle) operator+=]
-                    li #[:code(inline, subtle) operator*]
-            .col
-              ul 
-                li Unknown modulus
-                  ul
-                    li dependent types
-                    li selecting the type
-                    li optimizations
-                    li powers
+          h1 The constructor(s)
+
+          h2 Let's review!
+          :code
+            template<std::uint64_t modulus_>
+            struct Modulo {
+              using ValueType = [...];
+              ValueType value;
+
+              template<typename V>
+              Modulo(V raw_value)
+                : value(raw_value % modulus_) {}
+            }
+          .fragment
+            ul
+              li Should we avoid the implicit one-argument constructor?
+              li Could it be #[:code(inline, subtle) constexpr]?
+              li What about the copy and move constructor?
+              li Can the constructor as a template be improved?
+              li Are the arithmetic conversions correct in #[i all] cases?
+        section
+          h1 The constructor(s)
+          :code
+            // TODO
+          include:code code/ct_constructor.cpp
+        section
+          h1 Let's recap
+          p Known modulus
+          ul
+            li Member type
+            li Constructors
+            li Operators
         section
           h1 Run-time modulus
           h2 What should #[:code(inline, subtle) Mod] be?
@@ -355,8 +401,6 @@ html
           h1 Compile-time modulus
           .row
             .col
-              br
-              br
               include:code code/rt_modulo_impl.cpp
             .col
               h4 Known modulus
@@ -365,17 +409,44 @@ html
                 struct CTModuloInfo {
                   using ValueType = [...];
                   static constexpr ValueType modulus = modulus_;
+
+                  static void product(
+                    ValueType& lhs, ValueType const& rhs
+                  ) {
+                    using Extended = std::conditional_t<
+                      std::bitwidth(modulus_) < 32,
+                      std::uint64_t,
+                      __uint128_t
+                    >;
+                    lhs = (ValueType) ((Extended) lhs * rhs % modulus_);
+                  }
                 };
 
                 template<std::uint64_t modulus_>
                 using Modulo = ModuloImpl<CTModuloInfo<modulus_>>;
-              br
+        section
+          h1 Run-time modulus
+          .row
+            .col
+              include:code code/rt_modulo_impl.cpp
+            .col
               h4 Unknown modulus
               :code
-                template<typename VT>
+                template<std::uint64_t max_modulus_>
                 struct RTModuloInfo {
-                  using ValueType = VT;
+                  using ValueType = [...];
                   static ValueType modulus;
+
+                  static void product(
+                    ValueType& lhs, ValueType const& rhs
+                  ) {
+                    using Extended = std::conditional_t<
+                      std::bitwidth(max_modulus_) < 32,
+                      std::uint64_t,
+                      __uint128_t
+                    >;
+                    lhs = (ValueType) ((Extended) lhs * rhs % max_modulus_);
+                  }
                 };
         section
           h1 Aside: dependent type
@@ -434,111 +505,10 @@ html
               return a == -1;
             });
           br
-          div But, what happens in #[:code(inline, subtle) modulo(std::uint64_t modulus, auto lambda)]?
+          div But, what happens in #[:code(inline, subtle) modulo(auto modulus, auto lambda)]?
         section 
-          h1 Selecting the correct type
-          .row
-            .col
-              br
-              br
-              include:code code/rt_modulo_impl.cpp
-            .col
-              include:code(compile="rt_modulo_select") code/rt_modulo_select.cpp
-          .compiler-output
-            pre#rt_modulo_select
+          h1 TODO
         section
-          h1 Optimizing the constructor
-          .row
-            .col
-              include:code(compile="rt_constructor") code/rt_constructor.cpp
-            .col.compiler-col
-              pre#rt_constructor(data-assembly)
-
-        section
-          h1 Optimizing the operator*
-          .row
-            .col
-              h2 Simple
-              ul
-                li Use #[:code(inline, subtle) div]
-                li If needed use #[:code(inline, subtle) __uint128_t]
-            .col
-              h2 Balanced
-              ul
-                li Use #[:code(inline, subtle) div]
-                li Avoid #[:code(inline, subtle) __uint128_t]
-                li Compute #[:code(inline, subtle) 2**64 % modulus] once
-              :code
-                m64 = (~0ull)%modulus + 1; // only once
-
-                // msvc: _umul128
-                // gcc: __uint128_t
-                std::tie(result, high) = mul(lhs, rhs);
-                while(high >= 0) {
-                  std::tie(low, high) = mul(high, m64);
-                  // msvc: _addcarry_u64
-                  if(__builtin_add_overflow(
-                    result, low, &result
-                  )) ++high;
-                }
-                result %= modulus;
-            .col
-              h2 Performant
-              ul
-                li Compute magic numbers once
-                li Always avoid #[:code(inline, subtle) div]
-
-        section
-          h1 Taking powers
-          .row 
-            .col
-              :code(compile="rt_pow")
-                #include "mod/modulo.h"
-                #include <iostream>
-
-                template<typename Int, typename Exp>
-                Int pow(Int i, Exp e) {
-                  Int result = 1;
-                  while(e) {
-                    if(e % 2 == 1) result *= i;
-                    i *= i;
-                    e /= 2;
-                  }
-                  return result;
-                } 
-
-                int main() {
-                  for(int mod = 3; mod < 20; mod += 2)
-                    modulo(mod, [&]<typename Mod>() {
-                      auto a = Mod(3);
-                      std::cout << a.value << "**8 = " << pow(a, 8).value
-                                << " (mod " << mod <<")" << std::endl;
-                    });
-                }
-            .col.compiler-col
-              pre#rt_pow(data-output data-execute)
-        section
-          h1 Conclussions
-          br
-          br
-          br
-          .cloud.large-cloud
-            .word operator precedence
-            .word #[:code(inline, subtle) std::visit]
-            .word casting integers
-            .word concepts
-            .word comparing integers
-            .word #[:code(inline, subtle) __uint128_t]
-            .word value categories
-            .word argument-dependent lookup
-            .word #[:code(inline, subtle) MUL], #[:code(inline, subtle) UMULH], #[:code(inline, subtle) FMUL]
-            .word fixed-point arithmetic
-            .word micro bechmarking
-            .word dependent types
-            .word
-              :code(inline, subtle) [[assume(...)]]
-          div(style="position:absolute; left:20px; bottom:20px; text-align: left; font-size:80%;")
-            | Toon Baeyens
-            br
-            | toon.baeyens@gmail.com
+          h1 Aside: mul and div
+          p TODO: Compiler explorer's analysis
     script(src="index.js" type="module")
